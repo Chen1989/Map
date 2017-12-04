@@ -12,8 +12,10 @@ import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.maps.AMap;
+import com.amap.api.maps.AMapException;
 import com.amap.api.maps.MapView;
 import com.amap.api.maps.model.MyLocationStyle;
+import com.amap.api.maps.offlinemap.OfflineMapManager;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -28,6 +30,33 @@ public class MainActivity extends Activity {
         @Override
         public void onLocationChanged(AMapLocation aMapLocation) {
             Log.d("TAG", "location = " + aMapLocation.getAddress() + aMapLocation.getCity());
+
+            try {
+                //构造OfflineMapManager对象
+                OfflineMapManager amapManager = new OfflineMapManager(MainActivity.this,
+                        new OfflineMapManager.OfflineMapDownloadListener() {
+                            @Override
+                            public void onDownload(int i, int i1, String s) {
+                                Log.d("TAG", "OfflineMap onDownload i = " + i + ", i1 = " + i1 + ", s = " + s);
+                            }
+
+                            @Override
+                            public void onCheckUpdate(boolean b, String s) {
+                                Log.d("TAG", "OfflineMap onCheckUpdate b = " + b + ", s = " + s);
+                            }
+
+                            @Override
+                            public void onRemove(boolean b, String s, String s1) {
+                                Log.d("TAG", "OfflineMap onRemove b = " + b + ", s = " + s + ", s1 = " + s1);
+                            }
+                        });
+                //按照citycode下载
+//            amapManager.downloadByCityCode(String citycode);
+                //按照cityname下载
+                amapManager.downloadByCityName(aMapLocation.getCity());
+            } catch (AMapException e) {
+                e.printStackTrace();
+            }
         }
     };
     //声明AMapLocationClientOption对象
